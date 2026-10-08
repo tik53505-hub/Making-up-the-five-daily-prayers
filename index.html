@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0a0a">
+<title>قضاء الصلوات</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  
+  body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+    color: #e8e8e8;
+    padding: 12px;
+    padding-bottom: 100px;
+    min-height: 100vh;
+  }
+
+  .header-card {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    border: 2px solid #d4af37;
+    color: white;
+    padding: 26px 18px;
+    border-radius: 20px;
+    text-align: center;
+    margin-bottom: 14px;
+  }
+
+  .header-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #d4af37;
+    margin-bottom: 14px;
+  }
+
+  .divider {
+    text-align: center;
+    color: #d4af37;
+    font-size: 14px;
+    margin: 10px 0;
+    opacity: 0.7;
+  }
+
+  .dua {
+    font-size: 16px;
+    font-weight: 600;
+    color: #d4af37;
+    line-height: 1.9;
+  }
+
+  .full-day-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    border: 2px solid #d4af37;
+    color: #d4af37;
+    padding: 18px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+
+  .full-day-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .prayer-card {
+    background: #141414;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-right: 4px solid #d4af37;
+    border-top: 1px solid #2a2a2a;
+    border-bottom: 1px solid #2a2a2a;
+    border-left: 1px solid #2a2a2a;
+  }
+
+  .prayer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  .prayer-name {
+    font-size: 17px;
+    font-weight: bold;
+    color: #d4af37;
+  }
+
+  .time-info {
+    text-align: left;
+    font-size: 11px;
+    color: #fbbf24;
+    line-height: 1.6;
+    font-weight: 600;
+  }
+
+  .remaining {
+    font-size: 15px;
+    margin: 8px 0;
+    color: #b8b8b8;
+  }
+
+  .remaining .num {
+    font-size: 26px;
+    font-weight: bold;
+    color: #f87171;
+  }
+
+  .prayer-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    padding: 12px 8px;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .btn-pray {
+    background: linear-gradient(135deg, #b8860b, #d4af37);
+    color: #0a0a0a;
+  }
+
+  .btn-pray.done-today {
+    background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+    color: white !important;
+    cursor: not-allowed;
+    opacity: 0.85;
+  }
+
+  .btn-add {
+    background: #1f0a0a;
+    color: #f87171;
+    border: 1px solid #7f1d1d;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal.show { display: flex; }
+
+  .modal-box {
+    background: #141414;
+    border: 2px solid #d4af37;
+    border-radius: 20px;
+    padding: 28px 20px;
+    text-align: center;
+    width: 100%;
+    max-width: 340px;
+    animation: pop 0.3s ease;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+
+  .modal-icon {
+    font-size: 55px;
+    margin-bottom: 12px;
+  }
+
+  .modal-title {
+    font-size: 19px;
+    font-weight: bold;
+    margin-bottom: 8px;
+    color: #d4af37;
+  }
+
+  .modal-sub {
+    font-size: 14px;
+    color: #b8b8b8;
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .modal-btn {
+    flex: 1;
+    padding: 13px;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .yes { background: #16a34a; color: white; }
+  .no { background: #2a2a2a; color: #e8e8e8; border: 1px solid #444; }
+
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #d4af37;
+    color: #0a0a0a;
+    padding: 12px 22px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 400;
+    max-width: 90%;
+    text-align: center;
+  }
+
+  .toast.show { opacity: 1; }
+
+  .info-note {
+    text-align: center;
+    font-size: 11px;
+    color: #888;
+    margin-top: 16px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-card">
+  <div class="header-title">✨ قضاء الصلوات ✨</div>
+  <div class="divider">﷽</div>
+  <div class="dua">
+    اللهم صل على محمد وآل محمد<br>
+    اللهم اغفر لي ذنوبي فإنه لا يغفر الذنوب إلا أنت
+  </div>
+</div>
+
+<button class="full-day-btn" id="fullDayBtn" onclick="prayFullDay()">
+  ✓ صليت يوم كامل قضاءً (الصلوات الخمس)
+</button>
+
+<div id="prayersContainer"></div>
+
+<div class="info-note">
+  يمكنك الضغط على "صليت قضاءً" مرة واحدة فقط يومياً<br>
+  يُفتح تلقائياً في اليوم التالي
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal" id="confirmModal">
+  <div class="modal-box">
+    <div class="modal-icon" id="confirmIcon">⚠️</div>
+    <div class="modal-title" id="confirmTitle">هل أنت متأكد؟</div>
+    <div class="modal-sub" id="confirmSub">سيتم إضافة صلاة إلى العداد</div>
+    <div class="modal-actions">
+      <button class="modal-btn yes" onclick="confirmYes()">✓ نعم، متأكد</button>
+      <button class="modal-btn no" onclick="confirmNo()">✗ إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════ البيانات ═══════════ */
+const DEFAULT_COUNT = 3653;
+
+const prayers = [
+  { id: 'fajr',         name: 'صلاة الصبح',           icon: '🌅', count: 1 },
+  { id: 'dhuhr_asr',    name: 'صلاة الظهر والعصر',    icon: '☀️', count: 2 },
+  { id: 'maghrib_isha', name: 'صلاة المغرب والعشاء',  icon: '🌆', count: 2 }
+];
+
+let data = {};
+try { data = JSON.parse(localStorage.getItem('salahData_v10')) || {}; } catch(e) { data = {}; }
+prayers.forEach(p => { if (typeof data[p.id] !== 'number') data[p.id] = DEFAULT_COUNT; });
+
+let doneToday = {};
+try { doneToday = JSON.parse(localStorage.getItem('doneToday_v10')) || {}; } catch(e) { doneToday = {}; }
+prayers.forEach(p => { if (typeof doneToday[p.id] !== 'string') doneToday[p.id] = ''; });
+if (typeof doneToday.fullDay !== 'string') doneToday.fullDay = '';
+
+/* ═══════════ مواقيت بغداد ═══════════ */
+function getPrayerTimes() {
+  const month = new Date().getMonth() + 1;
+  const monthlyTimes = {
+    1:  { fajr: '05:45', dhuhr: '12:15', asr: '15:00', maghrib: '17:30', isha: '18:50' },
+    2:  { fajr: '05:30', dhuhr: '12:20', asr: '15:20', maghrib: '17:50', isha: '19:10' },
+    3:  { fajr: '05:00', dhuhr: '12:15', asr: '15:30', maghrib: '18:10', isha: '19:30' },
+    4:  { fajr: '04:30', dhuhr: '12:05', asr: '15:35', maghrib: '18:30', isha: '19:50' },
+    5:  { fajr: '04:00', dhuhr: '12:00', asr: '15:40', maghrib: '18:55', isha: '20:15' },
+    6:  { fajr: '03:40', dhuhr: '12:05', asr: '15:55', maghrib: '19:15', isha: '20:35' },
+    7:  { fajr: '03:45', dhuhr: '12:10', asr: '16:00', maghrib: '19:10', isha: '20:30' },
+    8:  { fajr: '04:05', dhuhr: '12:05', asr: '15:50', maghrib: '18:50', isha: '20:10' },
+    9:  { fajr: '04:25', dhuhr: '11:55', asr: '15:30', maghrib: '18:20', isha: '19:40' },
+    10: { fajr: '04:45', dhuhr: '11:50', asr: '15:15', maghrib: '17:55', isha: '19:15' },
+    11: { fajr: '05:10', dhuhr: '11:55', asr: '15:05', maghrib: '17:35', isha: '18:55' },
+    12: { fajr: '05:35', dhuhr: '12:05', asr: '15:00', maghrib: '17:20', isha: '18:40' }
+  };
+  return monthlyTimes[month] || monthlyTimes[10];
+}
+
+/* ═══════════ القفل اليومي ═══════════ */
+function getTodayKey() {
+  const d = new Date();
+  return d.getFullYear() + '-' + 
+         String(d.getMonth()+1).padStart(2,'0') + '-' + 
+         String(d.getDate()).padStart(2,'0');
+}
+
+function isDoneToday(id) {
+  return doneToday[id] === getTodayKey();
+}
+
+function markDoneToday(id) {
+  doneToday[id] = getTodayKey();
+  localStorage.setItem('doneToday_v10', JSON.stringify(doneToday));
+}
+
+function checkNewDay() {
+  const today = getTodayKey();
+  let changed = false;
+  Object.keys(doneToday).forEach(k => {
+    if (doneToday[k] && doneToday[k] !== today) {
+      doneToday[k] = '';
+      changed = true;
+    }
+  });
+  if (changed) {
+    localStorage.setItem('doneToday_v10', JSON.stringify(doneToday));
+    render();
+    showToast('🌅 يوم جديد! تم فتح الأزرار');
+  }
+}
+
+/* ═══════════ العرض ═══════════ */
+function render() {
+  const container = document.getElementById('prayersContainer');
+  if (!container) return;
+  
+  const times = getPrayerTimes();
+  let html = '';
+
+  prayers.forEach(p => {
+    let timeDisplay = '';
+    if (p.id === 'fajr') {
+      timeDisplay = times.fajr;
+    } else if (p.id === 'dhuhr_asr') {
+      timeDisplay = 'الظهر: ' + times.dhuhr + ' | العصر: ' + times.asr;
+    } else if (p.id === 'maghrib_isha') {
+      timeDisplay = 'المغرب: ' + times.maghrib + ' | العشاء: ' + times.isha;
+    }
+
+    const locked = isDoneToday(p.id);
+    const btnClass = locked ? 'action-btn btn-pray done-today' : 'action-btn btn-pray';
+    const btnText = locked 
+      ? '✓ تم القضاء اليوم' 
+      : '✓ صليت قضاءً' + (p.count > 1 ? ' (يوم)' : '');
+    
+    html += '<div class="prayer-card">' +
+      '<div class="prayer-header">' +
+        '<div class="prayer-name">' + p.icon + ' ' + p.name + '</div>' +
+        '<div class="time-info">' + timeDisplay + '</div>' +
+      '</div>' +
+      '<div class="remaining">المتبقي: <span class="num">' + 
+        data[p.id].toLocaleString('ar-EG') + '</span> صلاة</div>' +
+      '<div class="prayer-actions">' +
+        '<button class="' + btnClass + '" onclick="pray(\'' + p.id + '\')" ' + 
+          (locked ? 'disabled' : '') + '>' + btnText + '</button>' +
+        '<button class="action-btn btn-add" onclick="askAddBack(\'' + p.id + '\')">' +
+          '+ أضفت سهواً</button>' +
+      '</div>' +
+    '</div>';
+  });
+
+  container.innerHTML = html;
+
+  const fullBtn = document.getElementById('fullDayBtn');
+  if (fullBtn) {
+    if (isDoneToday('fullDay')) {
+      fullBtn.disabled = true;
+      fullBtn.textContent = '✓ تم قضاء اليوم كاملاً — يُفتح غداً';
+    } else {
+      fullBtn.disabled = false;
+      fullBtn.textContent = '✓ صليت يوم كامل قضاءً (الصلوات الخمس)';
+    }
+  }
+}
+
+/* ═══════════ الإجراءات ═══════════ */
+function pray(id) {
+  if (isDoneToday(id)) {
+    showToast('⚠️ تم القضاء اليوم — يُفتح غداً');
+    return;
+  }
+
+  const p = prayers.find(x => x.id === id);
+  if (data[id] >= p.count) {
+    data[id] -= p.count;
+    markDoneToday(id);
+    save();
+    showToast('✓ تم قضاء ' + p.name + ' — المتبقي: ' + data[id]);
+  } else {
+    showToast('🎉 لا توجد صلوات متبقية!');
+  }
+}
+
+let pendingAddId = null;
+
+function askAddBack(id) {
+  const p = prayers.find(x => x.id === id);
+  pendingAddId = id;
+  
+  document.getElementById('confirmIcon').textContent = '⚠️';
+  document.getElementById('confirmTitle').textContent = 'هل أنت متأكد؟';
+  document.getElementById('confirmSub').textContent = 
+    'سيتم إضافة ' + p.count + ' صلاة إلى ' + p.name;
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function confirmYes() {
+  document.getElementById('confirmModal').classList.remove('show');
+  if (pendingAddId) {
+    const p = prayers.find(x => x.id === pendingAddId);
+    data[pendingAddId] += p.count;
+    save();
+    showToast('تمت إضافة ' + p.count + ' صلاة إلى ' + p.name);
+    pendingAddId = null;
+  }
+}
+
+function confirmNo() {
+  document.getElementById('confirmModal').classList.remove('show');
+  pendingAddId = null;
+  showToast('تم الإلغاء');
+}
+
+function prayFullDay() {
+  if (isDoneToday('fullDay')) {
+    showToast('⚠️ تم قضاء اليوم كاملاً — يُفتح غداً');
+    return;
+  }
+
+  let done = 0;
+  prayers.forEach(p => {
+    if (!isDoneToday(p.id) && data[p.id] >= p.count) {
+      data[p.id] -= p.count;
+      markDoneToday(p.id);
+      done++;
+    }
+  });
+  markDoneToday('fullDay');
+  save();
+  
+  if (done === prayers.length) showToast('🎉 ما شاء الله! قضيت يوماً كاملاً');
+  else showToast('تم قضاء ' + done + ' مجموعة');
+}
+
+function save() {
+  localStorage.setItem('salahData_v10', JSON.stringify(data));
+  render();
+}
+
+/* ═══════════ Toast ═══════════ */
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+/* ═══════════ التهيئة ═══════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  checkNewDay();
+  render();
+  setInterval(() => {
+    checkNewDay();
+    render();
+  }, 60000);
+});
+</script>
+
+</body>
+</html>
